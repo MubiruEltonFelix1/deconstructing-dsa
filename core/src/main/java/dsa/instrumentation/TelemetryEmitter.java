@@ -10,6 +10,23 @@ package dsa.instrumentation;
 public class TelemetryEmitter {
 
     public void emit(String algoName, int n, OperationCounter counter, long elapsedMs) {
-        // TODO: build a JSON string from the arguments and print it to stdout
+        String json = String.format(
+            "{\"algo\":\"%s\",\"n\":%d,\"comparisons\":%d,\"swaps\":%d,\"elapsedMs\":%d}",
+            escapeJson(algoName),
+            n,
+            counter.getComparisons(),
+            counter.getSwaps(),
+            elapsedMs
+        );
+        System.out.println(json);
+    }
+
+    private static String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }
