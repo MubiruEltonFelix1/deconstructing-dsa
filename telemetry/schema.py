@@ -3,21 +3,26 @@ schema — Pydantic models for telemetry records persisted as JSON lines
 and loaded into DataFrames for analysis.
 """
 
-from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class TelemetryRecord(BaseModel):
-    """
-    TODO: Define fields:
-          algo (str), n (int), comparisons (int),
-          swaps (int), elapsedMs (int)
-    """
-    pass
+    """A single benchmark measurement from one algorithm run."""
+
+    algo: str = Field(description="Algorithm name (e.g. QuickSort)")
+    n: int = Field(gt=0, description="Input size")
+    comparisons: int = Field(ge=0, description="Number of key comparisons")
+    swaps: int = Field(ge=0, description="Number of swaps / assignments")
+    elapsedMs: int = Field(ge=0, description="Wall-clock runtime in milliseconds")
 
 
 class BenchmarkRun(BaseModel):
-    """
-    TODO: Define a higher-level record that wraps TelemetryRecord with
-          metadata (e.g. timestamp, machine info, JVM args).
-    """
-    pass
+    """Wraps a TelemetryRecord with execution metadata."""
+
+    record: TelemetryRecord
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    machine: Optional[str] = Field(default=None, description="Hostname or identifier")
+    jvmArgs: Optional[str] = Field(default=None, description="JVM arguments used")
